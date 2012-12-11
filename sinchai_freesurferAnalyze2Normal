@@ -1,0 +1,14 @@
+sinchai_freesurferAnalyze2Normal(file)
+
+T1 = analyze75read(file);
+T1_info = analyze75info(file);
+
+T1_size = size(T1);
+T1_new = zeros([ T1_size(3) T1_size(2) T1_size(1) ]);
+
+for j=1:T1_size(1)
+    T1_new(:,:,j) = fliplr(rot90(squeeze(T1(j,:,:)),-1));
+end
+
+file_new = [ file '_new' ];
+sinchai_matrix2img(T1_new,file_new,T1_info.PixelDimensions,'double');

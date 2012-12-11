@@ -1,0 +1,84 @@
+function sinchai_voxelize_tracts(input_filename,output_filename,normalize,upperThreshold)
+
+%-------------------------------------------------------------------------
+% sinchai_voxelize_tracts.m
+%-------------------------------------------------------------------------
+% Converts tracts to .img files, with tract count per voxel
+%
+% Examples:
+%
+%
+%
+% 1) sinchai_voxelize_tracts('tracts.mat','tractProb',1) --> normalizes values to one
+% without upper threshold
+%
+% 2) sinchai_voxelize_tracts('tracts.mat','tractProb',0,200) --> No Normalization but
+% upperThresholds counts to 200.
+%
+% 3) sinchai_voxelize_tracts('tracts.mat','tractProb',0,1) --> Creates
+% Binary map of tracts
+%
+% written October 8, 2009 modified 11/06
+%-------------------------------------------------------------------------
+
+load(input_filename);
+
+TPmap = zeros(vol_dim);
+minLength = 10;
+for i=1:length(tract)
+    fprintf(['Processing slice number:....' num2str(i) '\n']);
+    tracts = tract{i};
+    numberOfTracts = length(tracts);
+
+    for j=1:numberOfTracts
+        %fprintf(['Processing tract number:....' num2str(j) '\n']);
+        tractPoints = double(tracts{j}{2});
+        if size(tractPoints,1)>minLength/tractp.h
+            tr_val=NT_mm2vox(tractPoints,vol_dim,tractp.sf);
+            tr_val=round(tr_val);
+            tr_val_new = tr_val(1,:);
+            
+            for k=1:size(tr_val,1)-1
+                if sum(tr_val(k,:)~=tr_val(k+1,:))>0
+                    tr_val_new = [ tr_val_new ; tr_val(k+1,:) ];
+                end
+            end
+
+            tr_val_new(tr_val_new<1) = 1;
+            
+            try
+                for z=1:size(tr_val_new,1)
+                    TPmap(tr_val_new(z,1),tr_val_new(z,2),tr_val_new(z,3)) ...
+                        =  TPmap(tr_val_new(z,1),tr_val_new(z,2),tr_val_new(z,3)) + 1;
+                end
+            catch
+
+                tr_val_new
+                pause;
+
+                fprintf('\n error detected \n');
+
+            end
+
+        end
+    end
+
+end
+
+dispMap = TPmap;
+
+if nargin>3
+    
+dispMap(TPmap>upperThreshold) = upperThreshold;
+
+end
+
+if exist('normalize','var')
+    if normalize == 1
+        
+        dispMap = dispMap./max(max(max(dispMap)));
+        
+    end
+end
+
+sinchai_matrix2img(dispMap,output_filename,[2 2 4],'double');

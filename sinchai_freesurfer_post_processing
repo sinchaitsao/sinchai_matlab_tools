@@ -1,0 +1,54 @@
+flag = 1;
+
+Idlgv_prompt=[];
+Idlgv_def=[];
+var_names=[];
+
+Idlgv_prompt{1,length(Idlgv_prompt)+1} =...
+    'Subject ID';
+Idlgv_def{1,length(Idlgv_def)+1}='013006D1';
+var_names{1,length(var_names)+1}='subjectID';
+
+
+Idlgv_prompt{1,length(Idlgv_prompt)+1} =...
+    'Pathology Group';
+Idlgv_def{1,length(Idlgv_def)+1}='MCI';
+var_names{1,length(var_names)+1}='group';
+
+
+Idlgv_prompt{1,length(Idlgv_prompt)+1} =...
+    'specify current system';
+Idlgv_def{1,length(Idlgv_def)+1}='img';
+var_names{1,length(var_names)+1}='sys';
+
+
+Idlgv_lines = 1;
+
+Idlgv_title = 'Hipp Freesurfer Post-processing pipline';
+Idlgv_ans = inputdlg(Idlgv_prompt,Idlgv_title,Idlgv_lines,Idlgv_def);
+    
+sinchai_freesurfer_post_processing_step1(Idlgv_ans(1),Idlgv_ans(2),Idlgv_ans(3));
+
+f = figure;
+h = uicontrol('Position',[20 20 200 40],'String','Continue',...
+              'Callback','uiresume(gcbf)');
+g = uicontrol('Style','text','Position',[0 200 500 100],'String',...
+    {'mri_convert aseg.mgz aseg.img','mri_convert T1.mgz T1.img',['Current Dir: ' pwd ]});
+disp('This will print immediately');    
+uiwait(gcf); 
+disp('This will print after you click Continue');
+close(f);
+
+%   mri_convert aseg.mgz aseg.img
+%   mri_convert T1.mgz T1.img
+sinchai_freesurfer_post_processing_step2;
+%   find origin using SPM
+
+
+
+
+
+sinchai_freesurfer_post_processing_step3(<T1Origin>,<BzeroOrigin>);
+%   coregister T1 with Bzero and apply it to aseg using SPM
+sinchai_freesrufer_post_processing_step4(Idlgv_ans(3));
+

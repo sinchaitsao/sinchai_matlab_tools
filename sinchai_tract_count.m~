@@ -1,0 +1,10 @@
+function sinchai_tract_count(filename)
+
+load(filename);
+
+tract_count = 0;
+for i=1:length(tract)
+    tract_count = tract_count + sum(size(tract{i},2));
+end
+
+fprintf(['tract count: ' num2str(tract_count) '\n']);t
